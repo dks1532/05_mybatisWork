@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="boardMapper">  <!-- mapper는 mybatis-config에 등록해줘야 사용가능 -->
+	<resultMap type="com.kh.mybatis.board.model.vo.Board" id="boardResultSet">
+		<result column="board_no" property="boardNo"/>
+		<result column="board_title" property="boardTitle" />
+		<result column="board_content" property="boardContent" />
+		<result column="user_id" property="boardWriter" />
+		<result column="count" property="count"/>
+		<result column="create_date" property="createDate"/>
+	</resultMap>
+	<resultMap type="Reply" id="replyResultSet">	<!-- mybatis-config에 Reply로 등록해줬기 때문에 type 경로를 길게 쓸 필요 없음  -->
+		<result column="reply_no" property="replyNo"/>
+		<result column="reply_content" property="replyContent"/>
+		<result column="reply_writer" property="replyWriter"/>
+		<result column="create_date" property="createDate"/>
+	</resultMap>
+	<select id="selectTotalRecord" resultType="_int">
+		select count(*)
+		  from board
+		 where status = 'Y'
+	</select>  <!-- mybatis 사이트 매퍼설정에서 int형은 _int로 되어있다. -->
+	<select id="selectList" resultMap="boardResultSet">
+		select board_no, board_title, user_id, count, create_date
+		  from board b
+		  join member on (board_writer = user_id)
+		  where b.status = 'Y'
+		  order by board_no desc
+	</select>
+	<update id="increaseCount" parameterType="_int"> <!-- 파라미터타입 안쓰면 int형이 기본타입이므로 안써도됨 -->
+		update board
+		   set count = count + 1
+		 where board_no = #{boardNo}
+		   and status = 'Y'
+	</update>
+	<select id="selectBoard" parameterType="_int" resultMap="boardResultSet">
+		select board_no, board_title, board_content, user_id, count, create_date
+		  from board
+		  join member on (board_writer = user_id)
+		  where board_no = #{boardNo}
+	</select>
+	
+	<select id="selectReplyList" parameterType="_int" resultMap="replyResultSet">
+		select *
+		  from reply
+		 where ref_bno = #{boardNo}
+		   and status = 'Y'
+		 order by reply_no desc
+	</select>
+</mapper>	

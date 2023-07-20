@@ -1,0 +1,40 @@
+package com.kh.mybatis.board.model.dao;
+
+import java.util.ArrayList;
+
+import org.apache.ibatis.session.RowBounds;
+import org.apache.ibatis.session.SqlSession;
+
+import com.kh.mybatis.board.model.vo.Board;
+import com.kh.mybatis.common.model.vo.PageInfo;
+
+public class BoardDao {
+	public int selectTotalRecord(SqlSession sqlSession) {
+		return sqlSession.selectOne("boardMapper.selectTotalRecord");	// board-mapper에서 이름과 동일한 것을 찾음
+	}
+	
+	public ArrayList<Board> selectList(SqlSession sqlSession, PageInfo pi) {
+		// 마이바티스에서는 페이징처리를 위해 RowBounds라는 클래스 제공
+		
+		/*
+		 * ex) numPerPage : 5
+		 *	   1,2,3,4,5,6,7,8,9,10,	11,12
+		 * 						  offset(건너뛸숫자)	 limit(조회할 숫자)
+		 * nowPage : [1]	1~5		0						5
+		 * nowPage : [2]	6~10	5						5
+		 * nowPage : [3]	11~15	10						5
+		*/
+		
+		int limit = pi.getNumPerPage();
+		int offset = (pi.getNowPage()-1) * limit;	// ex) 0*5, 1*5, 2*5
+		
+		RowBounds rowBounds = new RowBounds(offset, limit);
+		/*
+		ArrayList<Board> list = (ArrayList)sqlSession.selectList("boardMapper.selectList", null, rowBounds);
+		return list;
+		*/
+		return (ArrayList)sqlSession.selectList("boardMapper.selectList", null, rowBounds);
+	}
+	
+	public int increaseCount(SqlSession sqlSession)
+}
